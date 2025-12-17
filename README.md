@@ -36,6 +36,12 @@ This ERC formalizes patterns that the prediction market industry has battle-test
 
 Initialize a new condition with a fixed number of outcomes. The function generates a `conditionId` which is the `keccak256(abi.encodePacked(oracle, questionId, outcomeSlotCount))` and initializes a payout vector associated to the `conditionId`
 
+##### Parameters
+
+- `oracle`: Account used to resolve a condition by reporting its result by calling `reportPayouts`. The `conditionId` is binded to the oracle address, so only the oracle can resolve the condition,
+- `questionId`: Identifier for the question to be answered by `oracle`
+- `outcomeSlotCount`: Number of outcomes for a condition. **MUST BE** `> 1` and `<= 256`
+
 ```js
 function prepareCondition(address oracle, bytes32 questionId, uint outcomeSlotCount) external
 ```
@@ -43,6 +49,11 @@ function prepareCondition(address oracle, bytes32 questionId, uint outcomeSlotCo
 #### reportPayouts
 
 Oracle resolves a condition by calling this function and reports payouts for each outcome
+
+##### Parameters
+
+- `questionId`: Identifier for the question to be answered by `oracle`
+- `payouts`: Oracle reported integer weights per outcome slot. The payout fraction for outcome slot `i` is `payoutNumerators[i] / payoutDenominator`
 
 **NOTE**:
 `msg.sender` is enforced as the oracle, because conditionId is derived from `(msg.sender, questionId, payouts.length)`.
@@ -54,6 +65,27 @@ function reportPayouts(bytes32 questionId, uint[] calldata payouts) external
 #### splitPosition
 
 Convert one `parent` stake into multiple `child` outcome positions, either by collateral by transferring `amount` collateral from the message sender to itself or by burning `amount` stake held by the message sender in the position being split worth of EIP 1155 tokens.
+
+##### Parameters
+
+- `collateralToken`: The address of the position's backing collateral token
+- `parentCollectionId`: Either `bytes(0)` signifying the position is backed by collateral or identifier of the parent collentionId (for nested positions)
+- `conditionId`: Condition being split on.
+- `partition`: Array of disjoint index sets defining non trivial partition of the outcome slots.
+  E.g. `A = 0b01` and `B = 0b10`, A valid full partition array of [A, B] would mean:
+  1. Its non trivial since `length > 1`
+  2. Disjoint since `A & B = 0`
+  3. Covers all outcomes since `A | B = 0b11`
+- `amount`: Amount of collateral (if `parentCollectionId == bytes(0)`) or parent position tokens to convert into the partitioned positions
+
+**NOTE**
+A `parent` outcome collection represents a position already conditioned on prior outcomes, while a `child` outcome collection represents an additional condition on top of it.
+E.g. Assume to condition statements C1 and C2 where C1 is the parent condition of C2 where:
+
+1.  C1 is “ETH > $3k?”
+2.  C2 is “ETH > $4k?”
+
+The outcomes of `C1` are prior outcomes for `C2`, because `C2` is only evaluated within the branch where `C1` is valid.
 
 ```js
 function splitPosition(
@@ -69,6 +101,18 @@ function splitPosition(
 
 The inverse of `splitPosition`: burn multiple child positions to recreate a parent position or get back collateral.
 
+##### Parameters
+
+- `collateralToken`: The address of the position's backing collateral token
+- `parentCollectionId`: Either `bytes(0)` signifying the position is backed by collateral or identifier of the parent collentionId (for nested positions)
+- `conditionId`: Condition being split on.
+- `partition`: Array of disjoint index sets defining non trivial partition of the outcome slots.
+- `amount`: Burns amount of each child position defined by partition
+
+**NOTE**
+If partition covers fullIndexSet either collateral is sent back to the caller (if `parentCollectionId == bytes(0)`) or mints `amount` of the parent position token
+If partition covers only a subset, mints `amount` of the merged subset position token.
+
 ```js
 function mergePositions(
         IERC20 collateralToken,
@@ -83,6 +127,16 @@ function mergePositions(
 
 After a condition is resolved, redeem outcome position tokens for their payout share.
 
+##### Parameters
+
+- `collateralToken`: The address of the position's backing collateral token
+- `parentCollectionId`: Either `bytes(0)` for direct redemption for collateral or identifier of the parent collentionId for nested redemption
+- `conditionId`: resolved condition
+- `indexSets`: List of outcome collections (bitmasks) whose positions the caller wants to redeem.
+
+**FLOW**
+for each `IndexSet`, computes the caller’s balance of the corresponding `positionId`, burns it, and adds `payout += stake * payoutNumerator(indexSet) / payoutDenominator` and then transfers collateral payout to caller if (`parentCollectionId == bytes(0)`) or mints parent position if nested.
+
 ```js
 function redeemPositions(IERC20 collateralToken, bytes32 parentCollectionId, bytes32 conditionId, uint[] calldata indexSets) external
 ```
@@ -90,6 +144,10 @@ function redeemPositions(IERC20 collateralToken, bytes32 parentCollectionId, byt
 #### getOutcomeSlotCount
 
 Returns outcome slot count of a `conditionId`
+
+##### Parameters
+
+- `conditionId`: ID of the condition
 
 ```js
 function getOutcomeSlotCount(bytes32 conditionId) external view returns (uint)
@@ -99,6 +157,12 @@ function getOutcomeSlotCount(bytes32 conditionId) external view returns (uint)
 
 Returns generated `conditionId` which is the `keccak256(abi.encodePacked(oracle, questionId, outcomeSlotCount))`
 
+##### Parameters
+
+- `oracle`: The account assigned to report the result for the prepared condition
+- `questionId`: An identifier for the question to be answered by the oracle
+- `oracle`: The number of outcome slots which should be used for this condition. Must not exceed 256
+
 ```js
 function getConditionId(address oracle, bytes32 questionId, uint outcomeSlotCount) external pure returns (bytes32)
 ```
@@ -107,6 +171,12 @@ function getConditionId(address oracle, bytes32 questionId, uint outcomeSlotCoun
 
 Returns `collectionId` constructed by a parent collection and an outcome collection.
 
+##### Parameters
+
+- `parentCollectionId`: Collection ID of the parent outcome collection, or bytes32(0) if there's no parent
+- `conditionId`: Condition ID of the outcome collection to combine with the parent outcome collection
+- `indexSet`: Index set of the outcome collection to combine with the parent outcome collection
+
 ```js
 function getCollectionId(bytes32 parentCollectionId, bytes32 conditionId, uint indexSet) external view returns (bytes32)
 ```
@@ -114,6 +184,11 @@ function getCollectionId(bytes32 parentCollectionId, bytes32 conditionId, uint i
 #### getPositionId
 
 Returns positionID from collateral token and outcome collection associated to the position
+
+##### Parameters
+
+- `collateralToken`: Collateral token which backs the position
+- `collectionId`: ID of the outcome collection associated with this position
 
 ```js
 function getPositionId(IERC20 collateralToken, bytes32 collectionId) external pure returns (uint)
