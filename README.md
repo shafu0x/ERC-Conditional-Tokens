@@ -32,12 +32,12 @@ This ERC formalizes patterns that the prediction market industry has battle-test
 
 Protocols and applications built on, or inspired by, the Gnosis Conditional Tokens Framework (CTF), an ERC-1155-based implementation, include:
 
-- [Polymarket](https://mirror.xyz/polymarket.eth/txFHoXVU1QAsXCZQj6H_ag3kXv1QTcnbLVI8cL9CFYg) – Prediction market platform on Polygon
-- [Seer](https://seer.pm) – Prediction and [futarchy](https://seer-3.gitbook.io/seer-documentation/developers/interact-with-seer/futarchy-market) markets on Gnosis and Ethereum Mainnet
-- [Forkast](https://docs.forkast.gg/conditional-tokens-framework) – Live gaming prediction markets on Arbitrum
-- [Omen](https://blog.kleros.io/a-good-omen-kleros-x-gnosis-x-dxdao-align-with-conditional/) – Decentralized prediction market launched in 2020 on Ethereum Mainnet
-- [Gnosis Conditional Token Grants](https://github.com/gnosis/GECO/issues/75) – Conditional payments and impact bonds implemented with CTF (prototype)
-- [Gnosis Protocol](https://www.gnosis.io/blog/announcing-gnosis-protocol) – DEX venue for trading ERC-1155 conditional tokens
+- [Polymarket](https://mirror.xyz/polymarket.eth/txFHoXVU1QAsXCZQj6H_ag3kXv1QTcnbLVI8cL9CFYg): Prediction market platform on Polygon
+- [Seer](https://seer.pm): Prediction and [futarchy](https://seer-3.gitbook.io/seer-documentation/developers/interact-with-seer/futarchy-market) markets on Gnosis and Ethereum Mainnet
+- [Forkast](https://docs.forkast.gg/conditional-tokens-framework): Live gaming prediction markets on Arbitrum
+- [Omen](https://blog.kleros.io/a-good-omen-kleros-x-gnosis-x-dxdao-align-with-conditional/): Decentralized prediction market launched in 2020 on Ethereum Mainnet
+- [Gnosis Conditional Token Grants](https://github.com/gnosis/GECO/issues/75): Conditional payments and impact bonds implemented with CTF (prototype)
+- [Gnosis Protocol](https://www.gnosis.io/blog/announcing-gnosis-protocol): DEX venue for trading ERC-1155 conditional tokens
 
 ## Specification
 
