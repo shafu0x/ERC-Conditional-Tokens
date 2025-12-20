@@ -28,6 +28,14 @@ To enable a thriving ecosystem of prediction markets and futarchy governance we 
 
 This ERC formalizes patterns that the prediction market industry has battle-tested for years. Providing one interface will accelerate adoption across chains and applications.
 
+## Usage
+
+This section is non-normative.
+
+### Nested conditionals
+
+Nested positions (via `parentCollectionId`) allow conditioning a position on multiple conditions. This is used for (i) decision markets / futarchy, where downstream markets are only meaningful under a particular decision branch, and (ii) outcome refinement, where an existing outcome set is further split by introducing a child condition under that set (instead of mutating the parent condition).
+
 ## Specification
 
 ### Methods
