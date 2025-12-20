@@ -27,16 +27,17 @@ To enable a thriving ecosystem of prediction markets and futarchy governance we 
 3. **Redemptions**: Token holders can claim collateral proportional to the reported payout weights after oracle resolution.
 
 This ERC formalizes patterns that the prediction market industry has battle-tested for years now. Providing one interface will accelerate adoption accross chains and applications.
+
 ## Adoption and Usage
 
-Protocols and applications built on, or inspired by, the Gnosis Conditional Tokens Framework (CTF), an ERC-1155-based implementation, include (this list is non-exhaustive and focuses on notable production and research use cases):
+Protocols and applications built on, or inspired by, the Gnosis Conditional Tokens Framework (CTF), an ERC-1155-based implementation, include:
 
-- [Omen](https://blog.kleros.io/a-good-omen-kleros-x-gnosis-x-dxdao-align-with-conditional/) – Decentralized prediction market protocol built on CTF
-- [Polymarket](https://mirror.xyz/polymarket.eth/txFHoXVU1QAsXCZQj6H_ag3kXv1QTcnbLVI8cL9CFYg) – Prediction market platform using CTF ERC-1155 outcome tokens
-- [Forkast](https://docs.forkast.gg/conditional-tokens-framework) – Prediction markets based on Gnosis's conditional tokens architecture
-- [Seer](https://seer.pm) – Prediction market platform employing the Conditional Tokens framework
-- [Gnosis Conditional Token Grants](https://github.com/gnosis/GECO/issues/75) – Conditional payments and impact bonds implemented with CTF
-- [Gnosis Protocol](https://www.gnosis.io/blog/announcing-gnosis-protocol) – Used as a trading venue for ERC-1155 conditional tokens
+- [Polymarket](https://mirror.xyz/polymarket.eth/txFHoXVU1QAsXCZQj6H_ag3kXv1QTcnbLVI8cL9CFYg) – Prediction market platform on Polygon with $300M+ TVL as of Dec 2025
+- [Seer](https://seer.pm) – Prediction market platform on Gnosis and Ethereum Mainnet with $1.3M+ TVL as of Dec 2025
+- [Forkast](https://docs.forkast.gg/conditional-tokens-framework) – Live gaming prediction markets on Arbitrum
+- [Omen](https://blog.kleros.io/a-good-omen-kleros-x-gnosis-x-dxdao-align-with-conditional/) – Decentralized prediction market launched in 2020 on Ethereum Mainnet
+- [Gnosis Conditional Token Grants](https://github.com/gnosis/GECO/issues/75) – Conditional payments and impact bonds implemented with CTF (prototype)
+- [Gnosis Protocol](https://www.gnosis.io/blog/announcing-gnosis-protocol) – DEX venue for trading ERC-1155 conditional tokens
 
 ## Specification
 
