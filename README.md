@@ -27,44 +27,16 @@ To enable a thriving ecosystem of prediction markets and futarchy governance we 
 3. **Redemptions**: Token holders can claim collateral proportional to the reported payout weights after oracle resolution.
 
 This ERC formalizes patterns that the prediction market industry has battle-tested for years now. Providing one interface will accelerate adoption accross chains and applications.
-
 ## Adoption and Usage
 
-The following protocols and products currently use conditional tokens as implemented by the Gnosis Conditional Tokens Framework (CTF), an ERC-1155-based implementation. This demonstrates the real-world demand for a standardized conditional token interface.
+Protocols and applications built on, or inspired by, the Gnosis Conditional Tokens Framework (CTF), an ERC-1155-based implementation, include (this list is non-exhaustive and focuses on notable production and research use cases):
 
-### Core Framework Implementations
-
-- **Gnosis Conditional Tokens Framework (CTF)**: Canonical implementation of conditional tokens as ERC-1155, supporting `prepareCondition`, `splitPosition`, `mergePositions`, and `redeemPositions`. Used as the base contract set for most conditional token applications.
-
-- **Gnosis Conditional Tokens Explorer (Protofire)**: Web application for splitting, merging, and redeeming positions, and inspecting conditions and positions for any CTF deployment. Provides a generic interface to CTF for developers and power users.
-
-### Prediction Markets
-
-- **Omen (by DXdao / Gnosis)**: Fully decentralized prediction market protocol built on top of the Gnosis Conditional Tokens Framework. Uses CTF ERC-1155 outcome tokens with an AMM (fixed-product market maker) for multi-outcome trading, integrating Kleros/Realitio as arbitrators.
-
-- **Polymarket**: All outcome "share tokens" are implemented using the Gnosis CTF ERC-1155 framework. Each outcome is a CTF `positionId` keyed by `conditionId`, `indexSets`, and collateral (see CTF `getConditionId`/`getPositionId`). The main Polymarket contract uses the CTF core ERC-1155 contract for all prediction markets.
-
-- **Forkast**: Uses the Conditional Tokens Framework (CTF) implemented in the smart contract system to tokenize outcomes of prediction markets, based on Gnosis's conditional tokens architecture. Markets are binary, but the underlying CTF supports up to 256 outcomes and provides `splitPosition` and `redeemPositions` on ERC-1155 tokens.
-
-- **Azuro (ecosystem / historical use)**: Described in ecosystem overviews as being powered by Gnosis' Conditional Token Framework for tokenizing outcomes, alongside Omen. Note: Explicit contract-level documentation is thinner than for Omen, Polymarket, and Forkast.
-
-- **Gnosis Protocol (ecosystem / historical use)**: Used as a trading venue for conditional tokens, providing an AMM/DEX layer to trade CTF outcome tokens created elsewhere.
-
-### Market Makers, Exchanges, and Infrastructure
-
-- **Conditional Tokens Market Makers (Gnosis / DeepWiki)**: A set of AMMs designed to operate with Gnosis Conditional Tokens for prediction markets, integrating directly with the ConditionalTokens ERC-1155 contract. Provides liquidity for outcome tokens (positions).
-
-- **Polymarket CTF Exchange**: Exchange protocol for atomic swaps between CTF ERC-1155 assets and ERC-20 tokens, purpose-built for Gnosis CTF outcome tokens. Helps bridge ERC-1155 conditional tokens and regular ERC-20 liquidity.
-
-- **Bitquery**: Exposes the "Main Polymarket Contract API" specifically as the CTF core contract, surfacing CTF contract events (`ConditionPreparation`, `PositionSplit`, `PositionsMerge`, and `ConditionResolution`) for Polymarket on Polygon. This infrastructure treats conditional tokens as a first-class on-chain data type.
-
-### Grants, Payments, and Governance Experiments
-
-- **Gnosis Ecosystem Grants / GECO Conditional Grants**: Gnosis ran a "Conditional Token Grants" program to bootstrap applications using the Conditional Token Framework. Grants were paid partly in conditional tokens representing a "yes" outcome on milestone completion, with tokens minted via CTF. Example: Gnosis 10,000 GNO grant to dxDAO contingent on Gnosis Protocol volume, enforced via conditional tokens and Kleros/Realitio.
-
-- **Conditional Payments and Impact Bonds**: The GECO program described conditional token payments, milestone-based payouts, and social impact bonds as explicit use cases for CTF. These rely on outcome tokens representing conditions like grant completion or social metrics, redeemable for collateral on resolution.
-
-- **Conditional Governance / GIP-related Markets (GnosisDAO)**: Gnosis forum discussions reference providing liquidity to "GIP related markets" and broader conditional investment and governance use cases for conditional tokens and prediction markets. Gnosis and DXdao ran liquidity mining programs on markets powered by conditional tokens to incentivize participation around protocol decisions.
+- [Omen](https://blog.kleros.io/a-good-omen-kleros-x-gnosis-x-dxdao-align-with-conditional/) – Decentralized prediction market protocol built on CTF
+- [Polymarket](https://mirror.xyz/polymarket.eth/txFHoXVU1QAsXCZQj6H_ag3kXv1QTcnbLVI8cL9CFYg) – Prediction market platform using CTF ERC-1155 outcome tokens
+- [Forkast](https://docs.forkast.gg/conditional-tokens-framework) – Prediction markets based on Gnosis's conditional tokens architecture
+- [Seer](https://seer.pm) – Prediction market platform employing the Conditional Tokens framework
+- [Gnosis Conditional Token Grants](https://github.com/gnosis/GECO/issues/75) – Conditional payments and impact bonds implemented with CTF
+- [Gnosis Protocol](https://www.gnosis.io/blog/announcing-gnosis-protocol) – Used as a trading venue for ERC-1155 conditional tokens
 
 ## Specification
 
