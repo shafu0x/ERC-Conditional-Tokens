@@ -30,8 +30,6 @@ This ERC formalizes patterns that the prediction market industry has battle-test
 
 ## Adoption and Usage
 
-Protocols and applications built on, or inspired by, the Gnosis Conditional Tokens Framework (CTF), an ERC-1155-based implementation, include:
-
 - [Polymarket](https://docs.polymarket.com/developers/CTF/overview): Prediction markets using CTF on Polygon
 - [Seer](https://seer.pm): Prediction and [futarchy](https://seer-3.gitbook.io/seer-documentation/developers/interact-with-seer/futarchy-market) markets using CTF (Gnosis and Ethereum)
 - [Forkast](https://docs.forkast.gg/conditional-tokens-framework): Sports/gaming prediction markets using CTF-style conditional tokens (Arbitrum)
