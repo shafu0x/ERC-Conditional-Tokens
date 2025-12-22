@@ -30,6 +30,17 @@ This ERC formalizes patterns that the prediction market industry has battle-test
 
 ## Specification
 
+### Definitions
+
+- **condition**: A question with multiple possible outcomes, identified by `conditionId`.
+- **conditionId**: `keccak256(abi.encodePacked(oracle, questionId, outcomeSlotCount))`.
+- **collectionId**: Identifier for an outcome collection, derived from parent collection, condition, and index set.
+- **positionId**: `uint256(keccak256(abi.encodePacked(collateralToken, collectionId)))`, used as ERC-6909 token ID.
+- **indexSet**: Bitmask representing a subset of outcomes. For 3 outcomes: `0b001` = outcome 0, `0b110` = outcomes 1 and 2.
+- **partition**: Array of disjoint index sets covering outcomes being split or merged.
+- **fullIndexSet**: `(1 << outcomeSlotCount) - 1`, representing all outcomes.
+
+
 ### Methods
 
 #### prepareCondition
@@ -267,6 +278,9 @@ event PayoutRedemption(
         uint payout
     )
 ```
+## Backwards Compatibility
+
+This standard formalizes the Gnosis Conditional Tokens Framework interface with ERC-6909 for position tokens instead of ERC-1155. The ID derivation formulas (`conditionId`, `collectionId`, `positionId`) are identical, enabling tooling reuse. Direct token migration from ERC-1155 CTF deployments is not possible.
 
 ## Security Considerations
 
