@@ -1,3 +1,53 @@
+# ERC Conditional Tokens
+
+> **A formal standard for prediction market primitives**
+
+This repository contains:
+1. **ERC Specification** — Draft standard for conditional tokens (see below)
+2. **Reference Implementation** — Foundry-based Solidity implementation in `src/`
+
+---
+
+## Quick Start
+
+```bash
+# Install dependencies
+forge install
+
+# Build
+forge build
+
+# Test
+forge test -vvv
+
+# Gas report
+forge test --gas-report
+```
+
+---
+
+## Reference Implementation
+
+### Contracts
+
+| File | Description |
+|------|-------------|
+| `src/ConditionalTokens.sol` | Main implementation |
+| `src/ERC6909.sol` | Base multi-token contract |
+| `src/interfaces/IConditionalTokens.sol` | Core interface |
+| `src/libraries/CTHelpers.sol` | ID derivation helpers |
+
+### Dependencies
+
+- [OpenZeppelin Contracts](https://github.com/OpenZeppelin/openzeppelin-contracts) — SafeERC20 for robust token transfers
+- [Forge-Std](https://github.com/foundry-rs/forge-std) — Testing utilities
+
+---
+
+## Specification
+
+See the full ERC specification below.
+
 ---
 eip: XXX
 title: Conditional Tokens
@@ -82,8 +132,8 @@ Convert one `parent` stake into multiple `child` outcome positions, either by co
 A `parent` outcome collection represents a position already conditioned on prior outcomes, while a `child` outcome collection represents an additional condition on top of it.
 E.g. Assume to condition statements C1 and C2 where C1 is the parent condition of C2 where:
 
-1.  C1 is “ETH > $3k?”
-2.  C2 is “ETH > $4k?”
+1.  C1 is "ETH > $3k?"
+2.  C2 is "ETH > $4k?"
 
 The outcomes of `C1` are prior outcomes for `C2`, because `C2` is only evaluated within the branch where `C1` is valid.
 
@@ -135,7 +185,7 @@ After a condition is resolved, redeem outcome position tokens for their payout s
 - `indexSets`: List of outcome collections (bitmasks) whose positions the caller wants to redeem.
 
 **FLOW**
-for each `IndexSet`, computes the caller’s balance of the corresponding `positionId`, burns it, and adds `payout += stake * payoutNumerator(indexSet) / payoutDenominator` and then transfers collateral payout to caller if (`parentCollectionId == bytes(0)`) or mints parent position if nested.
+for each `IndexSet`, computes the caller's balance of the corresponding `positionId`, burns it, and adds `payout += stake * payoutNumerator(indexSet) / payoutDenominator` and then transfers collateral payout to caller if (`parentCollectionId == bytes(0)`) or mints parent position if nested.
 
 ```js
 function redeemPositions(IERC20 collateralToken, bytes32 parentCollectionId, bytes32 conditionId, uint[] calldata indexSets) external
