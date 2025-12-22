@@ -268,6 +268,62 @@ event PayoutRedemption(
     )
 ```
 
+## Example Lifecycle
+
+This section illustrates the lifecycle of a simple binary conditional market, from condition preparation to redemption.
+
+### Scenario
+
+An oracle creates a condition for the question: "Will ETH trade above $3,000 on 2026-01-01?", with two possible outcomes: **Yes** and **No**.
+
+### Condition Preparation
+
+The oracle calls `prepareCondition` with:
+- `oracle = O`
+- `questionId = Q`
+- `outcomeSlotCount = 2`
+
+This initializes a condition identified by:
+
+`conditionId = getConditionId(O, Q, 2)`
+
+### Position Splitting
+
+A participant deposits `100` units of collateral token `C` and splits it into outcome positions by calling `splitPosition` with:
+- `collateralToken = C`
+- `parentCollectionId = bytes32(0)`
+- `conditionId = conditionId`
+- `partition = [0b01, 0b10]`
+- `amount = 100`
+
+This transfers `100` units of collateral `C` to the conditional tokens contract and mints two ERC-6909 outcome positions representing:
+- outcome **Yes** (`indexSet = 0b01`)
+- outcome **No** (`indexSet = 0b10`)
+
+Each position token represents a claim on the collateral conditional on the corresponding outcome. Each outcome position corresponds to `positionId = getPositionId(C, getCollectionId(bytes32(0), conditionId, indexSet))`.
+
+### Oracle Resolution
+
+After the resolution time, the oracle reports the result by calling `reportPayouts` with:
+- `questionId = Q`
+- `payouts = [1, 0]`
+
+This assigns the full payout weight to the **Yes** outcome and zero to **No**.
+
+### Redemption
+
+A holder of the **Yes** position token calls `redeemPositions` with:
+- `collateralToken = C`
+- `parentCollectionId = bytes32(0)`
+- `conditionId = conditionId`
+- `indexSets = [0b01]`
+
+The contract burns the redeemed position token and transfers `100` units of collateral `C` to the caller, proportional to the reported payout weights.
+
+Holders of the **No** position token receive no payout.
+
+This example is illustrative and does not prescribe application-level behavior.
+
 ## Security Considerations
 
 ### Oracle Trust
