@@ -283,9 +283,7 @@ The oracle calls `prepareCondition` with:
 - `questionId = Q`
 - `outcomeSlotCount = 2`
 
-This initializes a condition identified by:
-
-`conditionId = getConditionId(O, Q, 2)`
+This initializes a condition identified by: `conditionId = getConditionId(O, Q, 2)`
 
 ### Position Splitting
 
@@ -318,9 +316,7 @@ A holder of the **Yes** position token calls `redeemPositions` with:
 - `conditionId = conditionId`
 - `indexSets = [0b01]`
 
-The contract burns the redeemed position token and transfers `100` units of collateral `C` to the caller, proportional to the reported payout weights.
-
-Holders of the **No** position token receive no payout.
+The contract burns the redeemed position token and transfers `100` units of collateral `C` to the caller, proportional to the reported payout weights. Holders of the **No** position token receive no payout.
 
 This example is illustrative and does not prescribe application-level behavior.
 
