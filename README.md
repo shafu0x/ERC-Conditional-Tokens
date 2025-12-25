@@ -2,7 +2,7 @@
 eip: XXX
 title: Conditional Tokens
 description: An interface for tokens representing positions on outcomes that can be split, merged and redeemed based on oracle reported results
-author: shafu (@shafu0x)
+author: shafu (@shafu0x), Behzad (@bitnician)
 status: Draft
 type: Standards Track
 category: ERC
