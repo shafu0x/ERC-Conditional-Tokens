@@ -1,8 +1,8 @@
 ---
-eip: XXX
+eip: 9999
 title: Conditional Tokens
 description: An interface for tokens representing positions on outcomes that can be split, merged and redeemed based on oracle reported results
-author: shafu (@shafu0x), Behzad (@bitnician)
+author: shafu (@shafu0x), Behzad (@bitnician), Ynyesto (@ynyesto)
 status: Draft
 type: Standards Track
 category: ERC
@@ -27,6 +27,15 @@ To enable a thriving ecosystem of prediction markets and futarchy governance we 
 3. **Redemptions**: Token holders can claim collateral proportional to the reported payout weights after oracle resolution.
 
 This ERC formalizes patterns that the prediction market industry has battle-tested for years now. Providing one interface will accelerate adoption accross chains and applications.
+
+## Adoption and Usage
+
+- [Polymarket](https://docs.polymarket.com/developers/CTF/overview): Prediction markets using CTF on Polygon
+- [Seer](https://seer.pm): Prediction and [futarchy](https://seer-3.gitbook.io/seer-documentation/developers/interact-with-seer/futarchy-market) markets using CTF (Gnosis and Ethereum)
+- [Forkast](https://docs.forkast.gg/conditional-tokens-framework): Sports/gaming prediction markets using CTF-style conditional tokens (Arbitrum)
+- [Omen](https://omen.eth.link): Early CTF + Reality.eth prediction markets (legacy frontend; onchain markets persist)
+- [Predict Fun](https://defillama.com/protocol/predict-fun): Prediction markets using conditional token contracts (BNB Chain and Blast)
+- [OPINION](https://defillama.com/protocol/opinion): Prediction exchange using a CTF-derived conditional tokens design (BNB Chain)
 
 ## Specification
 
