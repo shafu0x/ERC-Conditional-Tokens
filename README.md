@@ -2,7 +2,7 @@
 eip: XXX
 title: Conditional Tokens
 description: An interface for tokens representing positions on outcomes that can be split, merged and redeemed based on oracle reported results
-author: shafu (@shafu0x), Behzad (@bitnician)
+author: shafu (@shafu0x), Behzad (@bitnician), lajarre (@lajarre)
 status: Draft
 type: Standards Track
 category: ERC
@@ -18,7 +18,7 @@ It introduces three core operations. Splitting collateral into outcome positions
 
 ## Motivation
 
-Prediction markets have demonstrated product market fit through platform like Polymarket. The Gnosis Conditional Tokens framework from 2019 pioneered the core primitives of splitting, merging and redemeeing positions based on oracle outcomes. But there is no formal ERC standard, limiting interoperability.
+Prediction markets have demonstrated product market fit through platforms like Polymarket. The Gnosis Conditional Tokens framework from 2019 pioneered the core primitives of splitting, merging, and redeeming positions based on oracle outcomes. But there is no formal ERC standard, limiting interoperability.
 
 To enable a thriving ecosystem of prediction markets and futarchy governance we need a standard interface. This ERC addresses this through three core operations:
 
@@ -26,7 +26,15 @@ To enable a thriving ecosystem of prediction markets and futarchy governance we 
 2. **Position Splitting & Merging**: Converts collateral into outcome tokens (split) or recombines them (merge).
 3. **Redemptions**: Token holders can claim collateral proportional to the reported payout weights after oracle resolution.
 
-This ERC formalizes patterns that the prediction market industry has battle-tested for years now. Providing one interface will accelerate adoption accross chains and applications.
+This ERC formalizes patterns that the prediction market industry has battle-tested for years. Providing one interface will accelerate adoption across chains and applications.
+
+## Usage
+
+This section is non-normative.
+
+### Nested conditionals
+
+Nested positions (via `parentCollectionId`) allow conditioning a position on multiple conditions. This is used for (i) decision markets / futarchy, where downstream markets are only meaningful under a particular decision branch, and (ii) outcome refinement, where an existing outcome set is further split by introducing a child condition under that set (instead of mutating the parent condition).
 
 ## Specification
 
@@ -38,7 +46,7 @@ Initialize a new condition with a fixed number of outcomes. The function generat
 
 ##### Parameters
 
-- `oracle`: Account used to resolve a condition by reporting its result by calling `reportPayouts`. The `conditionId` is binded to the oracle address, so only the oracle can resolve the condition,
+- `oracle`: Account used to resolve a condition by reporting its result by calling `reportPayouts`. The `conditionId` is bound to the oracle address, so only that oracle can resolve the condition.
 - `questionId`: Identifier for the question to be answered by `oracle`
 - `outcomeSlotCount`: Number of outcomes for a condition. **MUST BE** `> 1` and `<= 256`
 
@@ -53,7 +61,9 @@ Oracle resolves a condition by calling this function and reports payouts for eac
 ##### Parameters
 
 - `questionId`: Identifier for the question to be answered by `oracle`
-- `payouts`: Oracle reported integer weights per outcome slot. The payout fraction for outcome slot `i` is `payoutNumerators[i] / payoutDenominator`
+- `payouts`: Oracle reported payout numerators per outcome slot. **MUST** satisfy
+  `payouts.length == outcomeSlotCount` and `payoutDenominator = Σ payouts[i] > 0`. The payout fraction for
+  outcome slot `i` is `payouts[i] / payoutDenominator`.
 
 **NOTE**:
 `msg.sender` is enforced as the oracle, because conditionId is derived from `(msg.sender, questionId, payouts.length)`.
@@ -64,21 +74,25 @@ function reportPayouts(bytes32 questionId, uint[] calldata payouts) external
 
 #### splitPosition
 
-Convert one `parent` stake into multiple `child` outcome positions, either by collateral by transferring `amount` collateral from the message sender to itself or by burning `amount` stake held by the message sender in the position being split worth of EIP 1155 tokens.
+Convert one `parent` stake into multiple `child` outcome positions defined by `partition`. If `parentCollectionId == bytes32(0)` and `indexSetUnion == fullIndexSet`, transfers `amount` collateral from the message sender; otherwise, burns `amount` of the position being split. In both cases, mints `amount` of each child position defined by `partition`.
 
 ##### Parameters
 
 - `collateralToken`: The address of the position's backing collateral token
-- `parentCollectionId`: Either `bytes(0)` signifying the position is backed by collateral or identifier of the parent collentionId (for nested positions)
+- `parentCollectionId`: Outcome collection ID common to the position being split and the split target positions, or `bytes32(0)` if there's no parent outcome collection.
 - `conditionId`: Condition being split on.
-- `partition`: Array of disjoint index sets defining non trivial partition of the outcome slots.
-  E.g. `A = 0b01` and `B = 0b10`, A valid full partition array of [A, B] would mean:
-  1. Its non trivial since `length > 1`
-  2. Disjoint since `A & B = 0`
-  3. Covers all outcomes since `A | B = 0b11`
-- `amount`: Amount of collateral (if `parentCollectionId == bytes(0)`) or parent position tokens to convert into the partitioned positions
+- `partition`: Array of disjoint index sets defining a non-trivial partition of an `indexSetUnion`, where
+  `fullIndexSet = (1 << outcomeSlotCount) - 1` and `indexSetUnion = partition[0] | partition[1] | ...`.
+  Each element **MUST** be `> 0` and `< fullIndexSet`, and elements **MUST** be pairwise disjoint.
+  `indexSetUnion` **MAY** be a strict subset of `fullIndexSet`.
+  - Example (full): outcomeSlotCount=2, `A = 0b01`, `B = 0b10`, partition `[A, B]` has `indexSetUnion = 0b11 (= fullIndexSet)`
+  - Example (partial): outcomeSlotCount=3, `B = 0b010`, `C = 0b100`, partition `[B, C]` has `indexSetUnion = 0b110 (!= fullIndexSet)`
+- `amount`: Amount of collateral (only if `parentCollectionId == bytes32(0)` and `indexSetUnion == fullIndexSet`) or position tokens to convert into the partitioned positions.
 
 **NOTE**
+`bytes32(0)` means “no parent outcome collection”. When `indexSetUnion != fullIndexSet`, the position being
+split is the subset position for `indexSetUnion` (not collateral), even if `parentCollectionId == bytes32(0)`.
+
 A `parent` outcome collection represents a position already conditioned on prior outcomes, while a `child` outcome collection represents an additional condition on top of it.
 E.g. Assume to condition statements C1 and C2 where C1 is the parent condition of C2 where:
 
@@ -99,19 +113,20 @@ function splitPosition(
 
 #### mergePositions
 
-The inverse of `splitPosition`: burn multiple child positions to recreate a parent position or get back collateral.
+The inverse of `splitPosition`: burn multiple child positions to recreate a parent or subset position, or get back collateral.
 
 ##### Parameters
 
 - `collateralToken`: The address of the position's backing collateral token
-- `parentCollectionId`: Either `bytes(0)` signifying the position is backed by collateral or identifier of the parent collentionId (for nested positions)
+- `parentCollectionId`: Outcome collection ID common to the positions being merged and the merge result position, or `bytes32(0)` if there's no parent outcome collection.
 - `conditionId`: Condition being split on.
-- `partition`: Array of disjoint index sets defining non trivial partition of the outcome slots.
+- `partition`: Array of disjoint index sets defining a non-trivial partition of the outcome slots.
 - `amount`: Burns amount of each child position defined by partition
 
 **NOTE**
-If partition covers fullIndexSet either collateral is sent back to the caller (if `parentCollectionId == bytes(0)`) or mints `amount` of the parent position token
-If partition covers only a subset, mints `amount` of the merged subset position token.
+Let `indexSetUnion = partition[0] | partition[1] | ...` and `fullIndexSet = (1 << outcomeSlotCount) - 1`.
+- If `indexSetUnion == fullIndexSet`, either collateral is sent back to the caller (if `parentCollectionId == bytes32(0)`) or `amount` of the parent position token is minted.
+- If `indexSetUnion != fullIndexSet`, `amount` of the merged subset position token for `indexSetUnion` is minted (even if `parentCollectionId == bytes32(0)`).
 
 ```js
 function mergePositions(
@@ -130,12 +145,16 @@ After a condition is resolved, redeem outcome position tokens for their payout s
 ##### Parameters
 
 - `collateralToken`: The address of the position's backing collateral token
-- `parentCollectionId`: Either `bytes(0)` for direct redemption for collateral or identifier of the parent collentionId for nested redemption
+- `parentCollectionId`: Either `bytes32(0)` for direct redemption for collateral or identifier of the parent collectionId for nested redemption
 - `conditionId`: resolved condition
 - `indexSets`: List of outcome collections (bitmasks) whose positions the caller wants to redeem.
 
 **FLOW**
-for each `IndexSet`, computes the caller’s balance of the corresponding `positionId`, burns it, and adds `payout += stake * payoutNumerator(indexSet) / payoutDenominator` and then transfers collateral payout to caller if (`parentCollectionId == bytes(0)`) or mints parent position if nested.
+For each `indexSet`, computes the caller’s balance of the corresponding `positionId`, burns it, and adds
+`payout += stake * payoutNumerator(indexSet) / payoutDenominator`. `payoutNumerator(indexSet)` is defined as
+the sum of the per-outcome `payouts[i]` for which `indexSet` has the i-th bit set. Finally, transfers
+collateral payout to the caller if (`parentCollectionId == bytes32(0)`) or mints the parent position token if
+nested.
 
 ```js
 function redeemPositions(IERC20 collateralToken, bytes32 parentCollectionId, bytes32 conditionId, uint[] calldata indexSets) external
@@ -161,7 +180,7 @@ Returns generated `conditionId` which is the `keccak256(abi.encodePacked(oracle,
 
 - `oracle`: The account assigned to report the result for the prepared condition
 - `questionId`: An identifier for the question to be answered by the oracle
-- `oracle`: The number of outcome slots which should be used for this condition. Must not exceed 256
+- `outcomeSlotCount`: The number of outcome slots which should be used for this condition. Must not exceed 256
 
 ```js
 function getConditionId(address oracle, bytes32 questionId, uint outcomeSlotCount) external pure returns (bytes32)
@@ -178,7 +197,7 @@ Returns `collectionId` constructed by a parent collection and an outcome collect
 - `indexSet`: Index set of the outcome collection to combine with the parent outcome collection
 
 ```js
-function getCollectionId(bytes32 parentCollectionId, bytes32 conditionId, uint indexSet) external view returns (bytes32)
+function getCollectionId(bytes32 parentCollectionId, bytes32 conditionId, uint indexSet) external pure returns (bytes32)
 ```
 
 #### getPositionId
