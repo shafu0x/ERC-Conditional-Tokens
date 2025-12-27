@@ -2,7 +2,7 @@
 eip: XXX
 title: Conditional Tokens
 description: An interface for tokens representing positions on outcomes that can be split, merged and redeemed based on oracle reported results
-author: shafu (@shafu0x)
+author: shafu (@shafu0x), Behzad (@bitnician)
 status: Draft
 type: Standards Track
 category: ERC
@@ -267,3 +267,23 @@ event PayoutRedemption(
         uint payout
     )
 ```
+
+## Security Considerations
+
+### Oracle Trust
+
+The oracle has absolute authority over payout distribution. A malicious or compromised oracle can direct all collateral to chosen outcomes with no on-chain dispute mechanism. Implementers SHOULD consider multi-sig oracles, time-locked reporting, or staking with slashing conditions.
+
+### External Calls and Collateral Tokens
+
+Functions interacting with collateral tokens via `transfer` and `transferFrom` are susceptible to reentrancy if the token has callbacks (e.g., ERC-777). Implementations MUST follow checks-effects-interactions or use reentrancy guards.
+
+Non-standard tokens (fee-on-transfer, rebasing) may cause accounting discrepancies. Implementations SHOULD document supported token types or measure actual balance changes.
+
+### Front-Running
+
+Oracle resolution transactions are visible in the mempool. Attackers can front-run `reportPayouts` to acquire winning positions before resolution. Applications SHOULD consider commit-reveal schemes or private mempools.
+
+### Denial of Service
+
+`prepareCondition` is permissionless and allocates storage. Attackers can spam condition creation to bloat storage. Implementations MAY require deposits or restrict creation to authorized registries.
